@@ -148,18 +148,16 @@ func (r *React) getThoughtAndAction(history string) (string, string, error) {
 	if err != nil {
 		return "", "", err
 	}
-	// remove empty lines
+
 	thought = strings.Trim(thought, "\n")
+
 	// check if there is an answer
 	if strings.Contains(thought, "ANSWER: ") {
 		return thought, "", nil
 	}
-	// print THOUGHT: line
-	for _, line := range strings.Split(thought, "\n") {
-		if strings.HasPrefix(line, "THOUGHT: ") {
-			fmt.Println(line)
-		}
-	}
+
+	fmt.Println("THOUGHT: " + strings.Split(thought, "\n")[0])
+
 	// parse ACTION: from result
 	result := strings.Split(thought, "ACTION: ")
 	if len(result) != 2 {
