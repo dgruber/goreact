@@ -32,16 +32,20 @@ function with string as input and output.
 
 ````go
 	commands := map[string]goreact.Command{
-		"calculate": {
-			Name:        "calculate",
-			Argument:    "expression",
-			Description: "Calculate the answer to a math problem. The expression is like: 180*atan2(log(e), log10(10))/pi",
-			Func: func(question string) (string, error) {
-				result, err := calculator.Calculate(question)
+		"wikisearch": {
+			Name:        "wikisearch",
+			Argument:    "topic",
+			Description: "wikisearch searches Wikipedia for a topic",
+			Func: func(topic string) (string, error) {
+				page, err := gowiki.GetPage(topic, -1, false, true)
 				if err != nil {
-					return "", err
+					return "Topic " + topic + "not found in Wikipedia", err
 				}
-				return fmt.Sprintf("%f", result), nil
+				content, err := page.GetContent()
+				if err != nil {
+					return err.Error(), err
+				}
+				return content, nil
 			},
 		},
 	}
