@@ -17,11 +17,13 @@ are executing and the argument to the command with the format:
 
 When the command has been executed, the response will contain
 "OBSERVATION: " followed by the output of the command. Use the output
-to generate a new THOUGHT and ACTION. If you have then the answer return
-"ANSWER: " followed by the answer If no further action is needed just
-write an answer based on the question and previous observations.
+to generate a new THOUGHT and ACTION. If can find the answer in the 
+observation return "ANSWER: " followed by the answer. If no further 
+action is needed just write an answer based on the question and 
+previous observations.
 
-Stop after ACTION or ANSWER.
+Stop after ACTION or ANSWER. If there is no ACTION then end with
+the ANSWER and put your conclusion in the ANSWER.
 
 You MUST make at least one ACTION
 
@@ -43,6 +45,7 @@ ANSWER: Joe Biden is the president of the United States.
 `
 
 var PromptSummarize string = `You are a very good in picking relevant information from a text.
+The text might come from a command and be structured as unstructured.
 You are given a text and a question. You must summarize the information in the text
-which is relevant to the question. If there is nothing interesting you must return 
+which might be relevant to the question. If there is nothing interesting you must return 
 "EMPTY".`

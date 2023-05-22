@@ -38,7 +38,7 @@ func (r *React) Question(question string) (string, error) {
 		// We don't really want that, it should use the commands at least
 		// once. Hence I added an instruction in the prompt to run
 		// at least one cycle...
-		fmt.Printf("Too easy. Immeadiately answering: %s\n", answer)
+		fmt.Printf("Too easy. Immediately answering: %s\n", answer)
 		return answer, nil
 	}
 
@@ -53,18 +53,9 @@ func (r *React) Question(question string) (string, error) {
 	// characters. Doing that by letting the LLM summarize the
 	// observation based on relevant information with regards
 	// to the question.
-	for {
-		fmt.Println("Summarize observation")
-		observation, err = r.compressObservation(question, observation, 512)
-		if err != nil {
-			return "", fmt.Errorf("unable to compress observation: %v", err)
-		}
-		if len(observation) > 512 {
-			// create a summary of the summary
-			continue
-		} else {
-			break
-		}
+	observation, err = r.createSummaryOfSummaries(question, observation, 512)
+	if err != nil {
+		return "", fmt.Errorf("unable to compress observation: %v", err)
 	}
 
 	for {
@@ -87,21 +78,17 @@ func (r *React) Question(question string) (string, error) {
 		}
 
 		observation, err = r.executeAction(action)
-		if err != nil {
+		if err != nil && observation == "" {
+			// observation might contain the error of the application
+			// which can be helpful to understand what went wrong for
+			// the LLM. Hence we only return "hard" errors which has
+			// no observation to abort the conversation.
 			return "", err
 		}
 
-		for {
-			observation, err = r.compressObservation(question, observation, 512)
-			if err != nil {
-				return "", fmt.Errorf("unable to compress observation: %v", err)
-			}
-			if len(observation) > 512 {
-				// create a summary of the summary
-				continue
-			} else {
-				break
-			}
+		observation, err = r.createSummaryOfSummaries(question, observation, 512)
+		if err != nil {
+			return "", fmt.Errorf("unable to compress observation: %v", err)
 		}
 	}
 }
@@ -193,6 +180,28 @@ func (r *React) executeAction(action string) (string, error) {
 	return cmd.Func(argument)
 }
 
+func (r *React) createSummaryOfSummaries(question, observation string, maxLen int) (string, error) {
+	var err error
+	if len(observation) <= maxLen {
+		return observation, nil
+	}
+	for {
+		observation, err = r.compressObservation(question, observation, maxLen)
+		if err != nil {
+			return "", fmt.Errorf("unable to compress observation: %v", err)
+		}
+		if len(observation) > maxLen {
+			// create a summary of the summary
+			fmt.Printf("Summary too long (%d). Creating a summary of the summary.\n",
+				len(observation))
+			continue
+		} else {
+			break
+		}
+	}
+	return observation, nil
+}
+
 func (r *React) compressObservation(question, observation string, maxLen int) (string, error) {
 	// compress observation
 	if len(observation) <= maxLen {
@@ -211,7 +220,7 @@ func (r *React) compressObservation(question, observation string, maxLen int) (s
 
 	for {
 		if to > len(observation) {
-			to = len(observation)
+			to = len(observation) - 1
 		}
 		part := observation[from:to]
 
@@ -222,14 +231,12 @@ func (r *React) compressObservation(question, observation string, maxLen int) (s
 		}
 		// remove EMPTY
 		summary = strings.ReplaceAll(summary, "EMPTY", "")
-
+		fullSummary += summary
 		from += stepSize - overlap
 		if from > len(observation)-overlap {
 			break
 		}
 		to += stepSize - overlap
-
-		fullSummary += summary
 	}
 	// remove empty lines
 	fullSummary = strings.Trim(fullSummary, "\n")
@@ -243,23 +250,24 @@ func parseAction(action string) (string, string, error) {
 	// action contains a command and an argument
 	// { "command": "answer", "argument": "42" }
 	result := strings.Split(strings.TrimSuffix(action, "\n"), "}")
-	if len(result) != 2 {
-		return "", "", fmt.Errorf("unable to parse action: %s", action)
-	}
+
 	commandAndArgument := strings.Split(strings.Trim(result[0], " "), ", ")
 	if len(commandAndArgument) != 2 {
 		return "", "", fmt.Errorf("unable to parse action: %s", action)
 	}
+
+	command := strings.Split(commandAndArgument[0], ": ")
+	if len(command) != 2 {
+		return "", "", fmt.Errorf("unable to parse action: %s", action)
+	}
+	cmd := strings.Trim(command[1], "\" ")
+
 	argument := strings.Split(commandAndArgument[1], ": ")
 	if len(argument) != 2 {
 		return "", "", fmt.Errorf("unable to parse action: %s", action)
-	}
-	arg := strings.Trim(argument[1], "\"")
 
-	command := strings.Split(commandAndArgument[0], ": ")
-	if len(argument) != 2 {
-		return "", "", fmt.Errorf("unable to parse action: %s", action)
 	}
-	cmd := strings.Trim(command[1], "\"")
+	arg := strings.Trim(argument[1], "\" ")
+
 	return cmd, arg, nil
 }

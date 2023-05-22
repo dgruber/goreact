@@ -24,11 +24,12 @@ from the OpenAI account and set the OPENAI_API_KEY env variable.
 	}
 ```
 
-The you need to register your actions which the LLM can work with. It requires
+Then you need to register your actions which the LLM can work with. It requires
 a function name, argument name, a description about how to use the function.
 It should contain the function name and how the argument must look like and
-of course what the output of the function is. Then you need to declare the
-function with string as input and output.
+of course what the output of the function is. Finally you need to declare the
+function with string as input and output. The description, name, and argument
+of the function is used in the prompt to tell the LLM about its existence.
 
 ````go
 	commands := map[string]goreact.Command{
@@ -76,7 +77,7 @@ Examples from the examples directory.
 
 Steering a calculator function.
 
-```bash
+```
 QUESTION: What is the square root of 10? What is PI? What is the sum of both numbers?
 THOUGHT: I need to calculate the square root of 10 and find the value of PI.
 ACTION: { "command": "calculate", "args": "sqrt(10)" }
@@ -95,13 +96,11 @@ ANSWER: The sum of the square root of 10 and PI is 6.303871.
 
 Not even a robot - maybe a camera looking in different directions.
 
-```bash
+```
 QUESTION: How many coins are in the rooms?
 THOUGHT: I need to check all the rooms to count the coins.
 ACTION: { "command": "look", "args": "north" } 
-{ "command": "look", "args": "north" } 
 EXECUTING COMMAND: look north
-Summarize observation
 OBSERVATION:  There is nothing north in bedroom
 EXECUTING COMMAND: look east
 OBSERVATION:  There is nothing east in bathroom
@@ -118,7 +117,7 @@ ANSWER: There is 1 coin in the rooms.
 Let the LLM work with wikipedia for finding the answer. Since the articles
 are too long to fit into the context, it automatically summerizes the articles.
 
-```bash
+```
 QUESTION: What is the fastest supercomputer today?
 THOUGHT: I need to find out the fastest supercomputer today.
 ACTION: { "command": "wikisearch", "args": "fastest supercomputer" }
@@ -134,13 +133,12 @@ ANSWER: The fastest supercomputer today is Frontier, which superseded Fugaku in 
 
 Another try:
 
-```bash
+```
 QUESTION: What is the question for which the answer is 42?
 THOUGHT: I need to search in Wikipedia for the question related to the number 42. 
 ACTION:  { "command": "wikisearch", "args": "42 number significance" } 
 EXECUTING COMMAND: wikisearch 42 number significance
 OBSERVATION:  Nothing interesting found
-execute:  { "command": "wikisearch", "args": "answer 42 question" } 
 EXECUTING COMMAND: wikisearch answer 42 question
 Summarize observation
 Summarize observation

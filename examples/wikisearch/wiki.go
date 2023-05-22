@@ -42,7 +42,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	answer, err := reactor.Question("What is the question for which the answer is 42?")
+	answer, err := reactor.Question("What is the capital of Germany? What is the capital of France")
 	if err != nil {
 		fmt.Printf("Failed to get answer: %v\n", err)
 		os.Exit(1)

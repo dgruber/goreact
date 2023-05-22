@@ -23,6 +23,11 @@ func NewOpenAIProvider(openaikey string) (*OpenAIProvider, error) {
 	}, nil
 }
 
+func (o *OpenAIProvider) WithModel(model string) *OpenAIProvider {
+	o.model = model
+	return o
+}
+
 func (o *OpenAIProvider) Request(system, prompt string) (string, error) {
 	req := openai.ChatCompletionRequest{
 		Model:       o.model,
