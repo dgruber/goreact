@@ -9,9 +9,8 @@ import (
 	"os"
 	"time"
 
+	googlesearch "github.com/dgruber/google-search"
 	"github.com/dgruber/goreact"
-	googlesearch "github.com/rocketlaunchr/google-search"
-	"github.com/Azure/azure-sdk-for-go/sdk/search/azsearch" // P61ac
 
 	"jaytaylor.com/html2text"
 )
@@ -24,7 +23,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	openaiProvider.WithModel("gpt-3.5-turbo-0301")
+	openaiProvider.WithModel("gpt-4o")
 
 	commands := map[string]goreact.Command{
 		"scrape": {
@@ -88,21 +87,6 @@ func main() {
 				return text, nil
 			},
 		},
-		"bing_search": { // Pcc7c
-			Name:        "bing_search",
-			Argument:    "search term",
-			Description: "Search for a term on Bing",
-			Func: func(term string) (string, error) { // Pb864
-				client := azsearch.NewClient(os.Getenv("BING_SEARCH_API_KEY"))
-				resp, err := client.Search(context.Background(), term, nil)
-				if err != nil {
-					fmt.Printf("Bing search failed with error: %v\n", err)
-					return "bing search failed with error: " + err.Error(), err
-				}
-				fmt.Printf("Bing search result: %v\n", resp)
-				return fmt.Sprintf("%v", resp), nil
-			},
-		},
 	}
 
 	reactor, err := goreact.NewReact(openaiProvider, commands)
@@ -111,7 +95,15 @@ func main() {
 		os.Exit(1)
 	}
 
-	answer, err := reactor.Question("What is the answer to life, the universe and everything?")
+	var question string
+	if len(os.Args) > 1 {
+		question = os.Args[1]
+	} else {
+		fmt.Printf("Usage: %s <question>\n", os.Args[0])
+		os.Exit(1)
+	}
+
+	answer, err := reactor.Question(question)
 	if err != nil {
 		fmt.Printf("Failed to get answer: %v\n", err)
 		os.Exit(1)

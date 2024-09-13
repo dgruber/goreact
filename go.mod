@@ -10,7 +10,6 @@ require (
 	github.com/sashabaranov/go-openai v1.29.2
 	github.com/trietmn/go-wiki v1.0.3
 	jaytaylor.com/html2text v0.0.0-20230321000545-74c2419ad056
-	github.com/Azure/azure-sdk-for-go/sdk/search/azsearch v0.1.0
 )
 
 require (
