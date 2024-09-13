@@ -19,7 +19,7 @@ func NewOpenAIProvider(openaikey string) (*OpenAIProvider, error) {
 	client := openai.NewClient(openaikey)
 	return &OpenAIProvider{
 		client: client,
-		model:  openai.GPT40314,
+		model:  openai.GPT4o,
 	}, nil
 }
 
@@ -31,8 +31,9 @@ func (o *OpenAIProvider) WithModel(model string) *OpenAIProvider {
 func (o *OpenAIProvider) Request(system, prompt string) (string, error) {
 	req := openai.ChatCompletionRequest{
 		Model:       o.model,
-		Temperature: 0.0,
+		Temperature: 0.1,
 		Stop:        []string{"OBSERVATION:", "STOP_ACTION"},
+		User:        "goreact",
 		Messages: []openai.ChatCompletionMessage{
 			{
 				Role:    openai.ChatMessageRoleSystem,
