@@ -7,9 +7,9 @@ provider connects it to OpenAI's GPT.
 
 There is an initial question followed by an automatic thought, action and oberservation loop which runs until the LLM concludes that it has an answer.
 
-The original paper describing the idea is [here](https://arxiv.org/pdf/2210.03629.pdf).
+The original paper "REACT: SYNERGIZING REASONING AND ACTING IN LANGUAGE MODELS" describing the idea is [here](https://arxiv.org/pdf/2210.03629.pdf).
 
-Here is a [a great blog post](https://blog.gopenai.com/react-a-bridge-between-llms-and-code-functions-54e5448c9a2) about the implementation in Python.
+Here is [a great blog post](https://blog.gopenai.com/react-a-bridge-between-llms-and-code-functions-54e5448c9a2) about the implementation in Python.
 
 ## How to use goreact?
 
@@ -26,10 +26,12 @@ from the OpenAI account and set the OPENAI_API_KEY env variable.
 
 Then you need to register your actions which the LLM can work with. It requires
 a function name, argument name, a description about how to use the function.
-It should contain the function name and how the argument must look like and
-of course what the output of the function is. Finally you need to declare the
-function with string as input and output. The description, name, and argument
-of the function is used in the prompt to tell the LLM about its existence.
+The description should be written in a way that the LLM understands what it is
+doing and how to call it.
+
+Finally you need to declare the function which has a string as input and output.
+The description, name, and argument of the function is automatically injected in 
+the prompt to tell the LLM about its existence. There can be many functions.
 
 ````go
 	commands := map[string]goreact.Command{
@@ -115,7 +117,7 @@ ANSWER: There is 1 coin in the rooms.
 ## Wikisearch
 
 Let the LLM work with wikipedia for finding the answer. Since the articles
-are too long to fit into the context, it automatically summerizes the articles.
+are too long to fit into the context, it automatically summarizes the articles.
 
 ```
 QUESTION: What is the fastest supercomputer today?
@@ -137,9 +139,8 @@ Another try:
 QUESTION: What is the question for which the answer is 42?
 THOUGHT: I need to search in Wikipedia for the question related to the number 42. 
 ACTION:  { "command": "wikisearch", "args": "42 number significance" } 
-EXECUTING COMMAND: wikisearch 42 number significance
 OBSERVATION:  Nothing interesting found
-EXECUTING COMMAND: wikisearch answer 42 question
+ACTION: wikisearch { "command": "wikisearch", "args": "answer 42 question" }
 Summarize observation
 Summarize observation
 OBSERVATION:  The specific question for which the answer is 42 is never found in the text. It is mentioned as the Answer to the Ultimate Question of Life, The Universe, and Everything. The text also explains that author Douglas Adams chose the number 42 as a joke, and it is an "ordinary number" with no hidden meaning.
