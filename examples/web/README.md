@@ -1,7 +1,8 @@
 # web
 
-This example contains 3 commands:
-- seach: allows the LLM to perform a Google search
+This example contains 4 commands:
+- search: allows the LLM to perform a Google search
+- bing_search: allows the LLM to perform a Bing search
 - scrape: allows the LLM to fetch any web page and get its content
 - ask: allows the LLM to include the user in its loop for further questions
 
@@ -22,3 +23,14 @@ OBSERVATION:  It is ok.
 
 CONCLUSION: Since the user responded with "It is ok", I can conclude that they are satisfied with the information. Thus, I can provide the answer to them based on my observation.
 ANSWER: According to Douglas Adams' book "The Hitchhiker's Guide to the Galaxy", the answer to the question "What is the answer to life, the universe and everything?" is the number 42 which is meant to be symbolic and open to interpretation. However, there is no real answer to the question in a literal sense.
+
+## Bing Search Example
+
+QUESTION: What is the capital of France?
+THOUGHT: I need to find the capital of France. I will use the Bing search engine to find the answer.
+ACTION: { "command": "bing_search", "args": "capital of France" }
+EXECUTING COMMAND: bing_search capital of France
+Bing search result: [{1 https://en.wikipedia.org/wiki/Paris Paris - Wikipedia Paris is the capital and most populous city of France. It has an area of 105 square kilometers and a population of 2,148,271 in 2020.}]
+OBSERVATION: The capital of France is Paris.
+THOUGHT: I have found the answer to the question.
+ANSWER: The capital of France is Paris.

@@ -11,6 +11,7 @@ import (
 
 	"github.com/dgruber/goreact"
 	googlesearch "github.com/rocketlaunchr/google-search"
+	"github.com/Azure/azure-sdk-for-go/sdk/search/azsearch" // P61ac
 
 	"jaytaylor.com/html2text"
 )
@@ -85,6 +86,21 @@ func main() {
 				reader := bufio.NewReader(os.Stdin)
 				text, _ := reader.ReadString('\n')
 				return text, nil
+			},
+		},
+		"bing_search": { // Pcc7c
+			Name:        "bing_search",
+			Argument:    "search term",
+			Description: "Search for a term on Bing",
+			Func: func(term string) (string, error) { // Pb864
+				client := azsearch.NewClient(os.Getenv("BING_SEARCH_API_KEY"))
+				resp, err := client.Search(context.Background(), term, nil)
+				if err != nil {
+					fmt.Printf("Bing search failed with error: %v\n", err)
+					return "bing search failed with error: " + err.Error(), err
+				}
+				fmt.Printf("Bing search result: %v\n", resp)
+				return fmt.Sprintf("%v", resp), nil
 			},
 		},
 	}
