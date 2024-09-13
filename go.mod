@@ -5,6 +5,7 @@ go 1.20
 require (
 	github.com/mnogu/go-calculator v0.0.1
 	github.com/sashabaranov/go-openai v1.9.4
+	github.com/Azure/azure-sdk-for-go/sdk/search/azsearch v0.1.0
 )
 
 require (
